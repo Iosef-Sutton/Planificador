@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planificador — Iosef</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+:root {
+  --bg:#0F0F0D;--bg2:#161613;--bg3:#1E1E1A;--bg4:#252520;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#F0EDE6;--text2:#9E9A90;--text3:#5C5A54;
+  --accent:#D4A853;--accent2:#B8904A;
+  --cal-facu:#378ADD;--cal-emp:#1D9E75;--cal-yeshi:#7F77DD;
+  --cal-salud:#E24B4A;--cal-rutina:#888780;--cal-libre:#EF9F27;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);height:100dvh;overflow:hidden;}
+#app{display:flex;flex-direction:column;height:100dvh;max-width:700px;margin:0 auto;}
+#header{padding:13px 20px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+#hl{display:flex;align-items:center;gap:11px;}
+#logo{width:31px;height:31px;border-radius:8px;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display';font-size:15px;color:#0F0F0D;flex-shrink:0;}
+#ht h2{font-family:'DM Serif Display';font-size:15px;color:var(--text);font-weight:400;}
+#ht p{font-size:11px;color:var(--text3);margin-top:1px;}
+#hr{display:flex;gap:6px;}
+.icb{width:28px;height:28px;border-radius:6px;background:var(--bg3);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:13px;transition:all .15s;}
+.icb:hover{color:var(--text);border-color:var(--border2);}
+#mode-tabs{display:flex;border-bottom:0.5px solid var(--border);flex-shrink:0;}
+.tab{flex:1;padding:9px 6px;font-size:12px;color:var(--text3);cursor:pointer;border:none;background:none;font-family:'DM Sans';display:flex;align-items:center;justify-content:center;gap:5px;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
+.tab:hover{color:var(--text2);}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab i{font-size:14px;}
+#ctx-bar{padding:8px 20px;border-bottom:0.5px solid var(--border);display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;}
+#ctx-bar::-webkit-scrollbar{display:none;}
+.ctx-chip{display:flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;background:var(--bg3);border:0.5px solid var(--border);font-size:11px;color:var(--text2);white-space:nowrap;flex-shrink:0;}
+.ctx-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+#main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+.mode-panel{display:none;flex:1;overflow:hidden;flex-direction:column;}
+.mode-panel.active{display:flex;}
+.chat-area{flex:1;overflow-y:auto;padding:14px 20px;display:flex;flex-direction:column;gap:11px;scrollbar-width:thin;scrollbar-color:var(--bg3) transparent;}
+.msg{display:flex;gap:9px;max-width:90%;animation:fu .2s ease;}
+@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{align-self:flex-end;flex-direction:row-reverse;}
+.mav{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:2px;}
+.ai-av{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#0F0F0D;font-family:'DM Serif Display';font-size:13px;}
+.usr-av{background:var(--bg3);border:0.5px solid var(--border2);color:var(--text3);font-size:9px;}
+.bubble{padding:9px 13px;border-radius:11px;font-size:13.5px;line-height:1.6;}
+.msg.ai .bubble{background:var(--bg2);border:0.5px solid var(--border);color:var(--text);border-radius:3px 11px 11px 11px;}
+.msg.user .bubble{background:var(--accent);color:#0F0F0D;border-radius:11px 3px 11px 11px;font-weight:500;}
+.typing-b{display:flex;align-items:center;gap:4px;padding:11px 13px;background:var(--bg2);border:0.5px solid var(--border);border-radius:3px 11px 11px 11px;}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--text3);animation:bop 1.2s infinite;}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes bop{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-4px)}}
+#preview-panel{display:none;border-top:0.5px solid var(--border);flex-direction:column;max-height:240px;flex-shrink:0;}
+#preview-panel.open{display:flex;}
+#preview-top{padding:9px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border);}
+#preview-top span{font-size:11px;font-weight:500;color:var(--text2);letter-spacing:.04em;text-transform:uppercase;}
+#preview-list{overflow-y:auto;padding:8px 20px;display:flex;flex-direction:column;gap:4px;scrollbar-width:none;}
+.ev-row{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg3);border:0.5px solid var(--border);border-radius:7px;}
+.ev-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.ev-info{flex:1;min-width:0;}
+.ev-title{font-size:12.5px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ev-sub{font-size:11px;color:var(--text3);margin-top:1px;}
+.ev-acts{display:flex;gap:3px;}
+.ev-btn{width:22px;height:22px;border-radius:5px;background:var(--bg2);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text3);font-size:11px;transition:all .15s;}
+.ev-btn:hover{color:var(--text);border-color:var(--border2);}
+#preview-bot{padding:9px 20px;display:flex;gap:7px;border-top:0.5px solid var(--border);flex-wrap:wrap;}
+#pend-panel{flex:1;overflow-y:auto;padding:14px 20px;display:flex;flex-direction:column;gap:8px;}
+.pend-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg2);border:0.5px solid var(--border);border-radius:9px;transition:all .15s;}
+.pend-item.done{opacity:.45;}
+.pend-check{width:18px;height:18px;border-radius:5px;border:0.5px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:10px;color:transparent;transition:all .15s;}
+.pend-item.done .pend-check{background:var(--accent);border-color:var(--accent);color:#0F0F0D;}
+.pend-text{flex:1;font-size:13px;color:var(--text);}
+.pend-item.done .pend-text{text-decoration:line-through;color:var(--text3);}
+.pend-days{font-size:11px;padding:2px 7px;border-radius:10px;flex-shrink:0;}
+.pend-days.warn{background:rgba(212,168,83,.15);border:0.5px solid rgba(212,168,83,.3);color:var(--accent);}
+.pend-days.ok{background:var(--bg3);border:0.5px solid var(--border);color:var(--text3);}
+.pend-del{width:22px;height:22px;border-radius:5px;background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;display:flex;align-items:center;justify-content:center;}
+.pend-del:hover{color:#E24B4A;}
+#add-pend-row{display:flex;gap:8px;padding:12px 20px;border-top:0.5px solid var(--border);flex-shrink:0;}
+#pend-input{flex:1;background:var(--bg3);border:0.5px solid var(--border2);border-radius:9px;padding:8px 12px;color:var(--text);font-family:'DM Sans';font-size:13px;outline:none;}
+#pend-input:focus{border-color:rgba(212,168,83,.4);}
+#pend-input::placeholder{color:var(--text3);}
+.pend-cat-sel{background:var(--bg3);border:0.5px solid var(--border2);border-radius:9px;padding:8px 10px;color:var(--text2);font-family:'DM Sans';font-size:12px;outline:none;cursor:pointer;}
+#ahora-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+#ahora-top{padding:16px 20px;border-bottom:0.5px solid var(--border);flex-shrink:0;}
+#ahora-top p{font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:12px;}
+#ahora-time-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+#ahora-time-row label{font-size:12px;color:var(--text3);}
+#ahora-time,#ahora-dur{background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:6px 10px;color:var(--text);font-family:'DM Sans';font-size:13px;outline:none;}
+#ahora-btn{padding:7px 14px;border-radius:8px;background:var(--accent);border:none;color:#0F0F0D;font-family:'DM Sans';font-size:12px;font-weight:500;cursor:pointer;}
+#date-sel-row{padding:8px 20px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;}
+#date-sel-row label{font-size:12px;color:var(--text3);}
+#target-date{background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:5px 10px;color:var(--text);font-family:'DM Sans';font-size:12px;outline:none;}
+#target-date:focus{border-color:rgba(212,168,83,.4);}
+.input-row{padding:11px 20px;border-top:0.5px solid var(--border);display:flex;gap:9px;align-items:flex-end;flex-shrink:0;}
+.chat-input{flex:1;resize:none;min-height:36px;max-height:90px;padding:8px 12px;font-size:13.5px;font-family:'DM Sans';background:var(--bg3);border:0.5px solid var(--border2);border-radius:9px;color:var(--text);line-height:1.5;outline:none;transition:border .15s;}
+.chat-input::placeholder{color:var(--text3);}
+.chat-input:focus{border-color:rgba(212,168,83,.4);}
+.send-btn{width:36px;height:36px;border-radius:9px;background:var(--accent);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#0F0F0D;font-size:15px;flex-shrink:0;transition:all .15s;}
+.send-btn:hover{background:var(--accent2);}
+.send-btn:disabled{opacity:.3;cursor:not-allowed;}
+.abtn{display:flex;align-items:center;gap:5px;padding:6px 13px;border-radius:7px;font-size:12px;font-family:'DM Sans';cursor:pointer;transition:all .15s;font-weight:500;border:none;}
+.abtn.pri{background:var(--accent);color:#0F0F0D;}
+.abtn.pri:hover{background:var(--accent2);}
+.abtn.sec{background:var(--bg3);color:var(--text2);border:0.5px solid var(--border);}
+.abtn.sec:hover{color:var(--text);border-color:var(--border2);}
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center;padding:20px;}
+.modal-ov.open{display:flex;}
+.modal{background:var(--bg2);border:0.5px solid var(--border2);border-radius:13px;padding:20px;width:100%;max-width:330px;display:flex;flex-direction:column;gap:13px;}
+.modal h3{font-family:'DM Serif Display';font-size:17px;color:var(--text);font-weight:400;}
+.field label{display:block;font-size:11px;color:var(--text3);margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase;}
+.field input{width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:7px 11px;color:var(--text);font-family:'DM Sans';font-size:13px;outline:none;}
+.field input:focus{border-color:rgba(212,168,83,.4);}
+.time-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.modal-acts{display:flex;gap:7px;justify-content:flex-end;margin-top:4px;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <div id="hl">
+      <div id="logo">I</div>
+      <div id="ht">
+        <h2>Planificador</h2>
+        <p id="date-label">...</p>
+      </div>
+    </div>
+    <div id="hr">
+      <div class="icb" onclick="restartPlan()" title="Nueva sesión"><i class="ti ti-refresh"></i></div>
+    </div>
+  </div>
+  <div id="mode-tabs">
+    <button class="tab active" id="tab-plan" onclick="setMode('plan')"><i class="ti ti-calendar"></i> Planificar</button>
+    <button class="tab" id="tab-ahora" onclick="setMode('ahora')"><i class="ti ti-bolt"></i> ¿Qué hago?</button>
+    <button class="tab" id="tab-pend" onclick="setMode('pend')"><i class="ti ti-checklist"></i> Pendientes</button>
+  </div>
+  <div id="ctx-bar"></div>
+  <div id="main">
+    <div class="mode-panel active" id="panel-plan">
+      <div id="date-sel-row">
+        <label>Planificando para:</label>
+        <input type="date" id="target-date">
+        <button class="abtn sec" onclick="restartPlan()" style="padding:5px 10px;font-size:11px;">Actualizar</button>
+      </div>
+      <div class="chat-area" id="chat-plan"></div>
+      <div id="preview-panel">
+        <div id="preview-top">
+          <span>Eventos <span id="ev-count"></span></span>
+          <div class="icb" onclick="togglePreview(false)" title="Cerrar"><i class="ti ti-chevron-down"></i></div>
+        </div>
+        <div id="preview-list"></div>
+        <div id="preview-bot">
+          <button class="abtn pri" onclick="exportICS()"><i class="ti ti-calendar-plus"></i> Exportar .ics</button>
+          <button class="abtn sec" onclick="togglePreview(false)"><i class="ti ti-arrow-left"></i> Seguir</button>
+          <button class="abtn sec" onclick="restartPlan()"><i class="ti ti-refresh"></i></button>
+        </div>
+      </div>
+      <div class="input-row">
+        <textarea class="chat-input" id="input-plan" placeholder="Hablá con tu planificador..." rows="1" onkeydown="handleKey(event,'plan')" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="send-plan" onclick="sendMsg('plan')"><i class="ti ti-send"></i></button>
+      </div>
+    </div>
+    <div class="mode-panel" id="panel-ahora">
+      <div id="ahora-panel">
+        <div id="ahora-top">
+          <p>Decime cuánto tiempo libre tenés ahora y te digo exactamente qué hacer.</p>
+          <div id="ahora-time-row">
+            <label>Son las</label>
+            <input type="time" id="ahora-time">
+            <label>y tengo</label>
+            <select id="ahora-dur" class="pend-cat-sel">
+              <option value="30">30 min</option>
+              <option value="60" selected>1 hora</option>
+              <option value="90">1h 30min</option>
+              <option value="120">2 horas</option>
+              <option value="180">3 horas</option>
+            </select>
+            <button id="ahora-btn" onclick="consultarAhora()">Sugerí</button>
+          </div>
+        </div>
+        <div class="chat-area" id="chat-ahora"></div>
+        <div class="input-row">
+          <textarea class="chat-input" id="input-ahora" placeholder="O preguntame lo que quieras..." rows="1" onkeydown="handleKey(event,'ahora')" oninput="autoResize(this)"></textarea>
+          <button class="send-btn" id="send-ahora" onclick="sendMsg('ahora')"><i class="ti ti-send"></i></button>
+        </div>
+      </div>
+    </div>
+    <div class="mode-panel" id="panel-pend">
+      <div id="pend-panel"></div>
+      <div id="add-pend-row">
+        <select class="pend-cat-sel" id="pend-cat">
+          <option value="Emprendimiento">💚 Emprend.</option>
+          <option value="Facultad">💙 Facultad</option>
+          <option value="Salud y cuerpo">❤️ Salud</option>
+          <option value="Personal">⭐ Personal</option>
+        </select>
+        <input type="text" id="pend-input" placeholder="Agregar pendiente..." onkeydown="if(event.key==='Enter')addPending()">
+        <button class="abtn pri" onclick="addPending()"><i class="ti ti-plus"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-ov" id="edit-modal">
+  <div class="modal">
+    <h3>Editar evento</h3>
+    <div class="field"><label>Nombre</label><input type="text" id="edit-title"></div>
+    <div class="time-row">
+      <div class="field"><label>Inicio</label><input type="time" id="edit-start"></div>
+      <div class="field"><label>Fin</label><input type="time" id="edit-end"></div>
+    </div>
+    <div class="modal-acts">
+      <button class="abtn sec" onclick="closeEdit()">Cancelar</button>
+      <button class="abtn pri" onclick="saveEdit()">Guardar</button>
+    </div>
+  </div>
+</div>
+<script>
+const GEMINI_KEY = "AIzaSyDbgoC2uVbf_aIJOXURJ2-9e7BjZiomV5U";
+const today = new Date();
+const todayISO = today.toISOString().split('T')[0];
+const dayNames = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const CAL_COLORS = {'Facultad':'#378ADD','Emprendimiento':'#1D9E75','Yeshivá':'#7F77DD','Salud y cuerpo':'#E24B4A','Rutinas fijas':'#888780','Tiempo libre':'#EF9F27'};
+const FACU = {
+  lunes:[{m:'Tecnologías de Desarrollo Móvil',i:'08:00',f:'11:00',s:'Monroe 860'}],
+  martes:[{m:'Álgebra – Teórica',i:'08:00',f:'09:30',s:'Riobamba'},{m:'Álgebra – Tutorial',i:'09:40',f:'11:10',s:'Riobamba'},{m:'Historia Sociopolítica – Tutorial',i:'11:20',f:'12:50',s:'Riobamba'}],
+  'miércoles':[{m:'Álgebra – Teórica',i:'08:00',f:'09:30',s:'Callao'},{m:'Álgebra – Problemas',i:'09:40',f:'11:10',s:'Callao'},{m:'Historia Sociopolítica – Teórica',i:'11:20',f:'12:50',s:'Callao'}],
+  jueves:[{m:'Escritura',i:'09:40',f:'11:10',s:'Riobamba'},{m:'Escritura y Oratoria',i:'11:20',f:'12:50',s:'Riobamba'}],
+  viernes:[{m:'Tecnologías de Desarrollo Móvil',i:'08:00',f:'09:30',s:'Riobamba'}],
+  sábado:[],domingo:[]
+};
+const GYM = ['lunes','jueves','viernes'];
+let planHistory=[], ahoraHistory=[], events=[], pendingTasks=[], editingIdx=null;
+let planLoading=false, ahoraLoading=false;
+let targetDate = todayISO;
+document.getElementById('target-date').value = todayISO;
+document.getElementById('target-date').min = todayISO;
+function getTargetDayName(iso){const d=new Date(iso+'T12:00:00');return dayNames[d.getDay()];}
+function formatDateLabel(iso){const d=new Date(iso+'T12:00:00');return d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});}
+document.getElementById('date-label').textContent=(()=>{const s=formatDateLabel(todayISO);return s.charAt(0).toUpperCase()+s.slice(1);})();
+function getDefaultPending(){return [{id:1,text:'Buscar 5 microinfluencers de perros en TikTok',cat:'Emprendimiento',done:false,days:0,created:todayISO},{id:2,text:'Armar mapa/sistema de veterinarias cercanas',cat:'Emprendimiento',done:false,days:0,created:todayISO}];}
+function loadPending(){try{const r=localStorage.getItem('iosef_pending_v2');return r?JSON.parse(r):getDefaultPending();}catch(e){return getDefaultPending();}}
+function savePending(){try{localStorage.setItem('iosef_pending_v2',JSON.stringify(pendingTasks));}catch(e){}}
+function renderPending(){
+  const el=document.getElementById('pend-panel');el.innerHTML='';
+  if(!pendingTasks.length){el.innerHTML='<div style="text-align:center;color:var(--text3);font-size:13px;padding:30px;">No tenés pendientes. ¡Agregá uno!</div>';return;}
+  pendingTasks.forEach((t,i)=>{
+    const div=document.createElement('div');div.className='pend-item'+(t.done?' done':'');
+    const warnClass=t.days>=3&&!t.done?'warn':'ok';
+    div.innerHTML=`<div class="pend-check" onclick="togglePending(${i})">${t.done?'<i class="ti ti-check"></i>':''}</div><div style="flex:1;min-width:0;"><div class="pend-text">${t.text}</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">${t.cat}</div></div><span class="pend-days ${warnClass}">${t.days>=3&&!t.done?'⚠️ ':''}${t.days>0?t.days+'d':'nuevo'}</span><button class="pend-del" onclick="deletePending(${i})"><i class="ti ti-x"></i></button>`;
+    el.appendChild(div);
+  });
+}
+function addPending(){const txt=document.getElementById('pend-input').value.trim();const cat=document.getElementById('pend-cat').value;if(!txt)return;pendingTasks.push({id:Date.now(),text:txt,cat,done:false,days:0,created:todayISO});document.getElementById('pend-input').value='';savePending();renderPending();}
+function togglePending(i){pendingTasks[i].done=!pendingTasks[i].done;savePending();renderPending();}
+function deletePending(i){pendingTasks.splice(i,1);savePending();renderPending();}
+function renderCtxBar(iso){
+  const bar=document.getElementById('ctx-bar');bar.innerHTML='';
+  const dn=getTargetDayName(iso);
+  const clases=FACU[dn]||[];
+  if(clases.length){const c=document.createElement('div');c.className='ctx-chip';c.innerHTML=`<div class="ctx-dot" style="background:var(--cal-facu)"></div> Facu ${clases[0].i}–${clases[clases.length-1].f}`;bar.appendChild(c);}
+  if(GYM.includes(dn)){const c=document.createElement('div');c.className='ctx-chip';c.innerHTML=`<div class="ctx-dot" style="background:var(--cal-salud)"></div> Día de gym`;bar.appendChild(c);}
+  const yc=document.createElement('div');yc.className='ctx-chip';yc.innerHTML=`<div class="ctx-dot" style="background:var(--cal-yeshi)"></div> Yeshivá 18–20:30`;bar.appendChild(yc);
+  const pending=pendingTasks.filter(p=>!p.done);
+  if(pending.length){const c=document.createElement('div');c.className='ctx-chip';c.innerHTML=`<i class="ti ti-checklist" style="font-size:11px"></i> ${pending.length} pendiente${pending.length>1?'s':''}`;bar.appendChild(c);}
+}
+function addMsgToChat(chatId,role,text){
+  const jsonMatch=text.match(/EVENTOS_JSON:(\[[\s\S]*?\])/);
+  let clean=text.replace(/EVENTOS_JSON:[\s\S]*$/,'').trim();
+  if(jsonMatch&&chatId==='plan'){try{events=JSON.parse(jsonMatch[1]);renderPreview();togglePreview(true);}catch(e){}}
+  const chatEl=document.getElementById('chat-'+chatId);
+  const div=document.createElement('div');div.className=`msg ${role}`;
+  const av=document.createElement('div');av.className=`mav ${role==='ai'?'ai-av':'usr-av'}`;av.setAttribute('aria-hidden','true');av.textContent=role==='ai'?'I':'vos';
+  const bub=document.createElement('div');bub.className='bubble';bub.textContent=clean;
+  div.appendChild(av);div.appendChild(bub);chatEl.appendChild(div);chatEl.scrollTop=chatEl.scrollHeight;
+}
+function showTypingIn(chatId){const chatEl=document.getElementById('chat-'+chatId);const d=document.createElement('div');d.className='msg ai';d.id='typing-'+chatId;d.innerHTML=`<div class="mav ai-av" aria-hidden="true">I</div><div class="typing-b"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;chatEl.appendChild(d);chatEl.scrollTop=chatEl.scrollHeight;}
+function removeTypingFrom(chatId){const t=document.getElementById('typing-'+chatId);if(t)t.remove();}
+function getPlanSystem(iso){
+  const dn=getTargetDayName(iso);const dateLabel=formatDateLabel(iso);
+  const clases=FACU[dn]||[];const isGym=GYM.includes(dn);
+  const pending=pendingTasks.filter(p=>!p.done);
+  const pendStr=pending.length?pending.map((p,i)=>`${i+1}. [${p.cat}] ${p.text}${p.days>=3?' ⚠️ '+p.days+' días sin tocar':''}`).join('\n'):'(sin pendientes)';
+  const isToday=iso===todayISO;
+  return `Sos el planificador personal inteligente de Iosef. Español rioplatense, directo, cálido, proactivo.\n\nCONTEXTO:\n- Estudia Digital Business en UdeSA\n- Emprendimiento con su hermano: producto halitosis en perros (SENASA)\n- Yeshivá fija 18:00–20:30 INAMOVIBLE\n- Gym: lunes, jueves, viernes\n- Necesita tener cosas CONCRETAS agendadas o no las hace\n\nPLANIFICANDO PARA: ${dateLabel} (${dn})${isToday?'':' — planificando con anticipación'}\n\nCLASES:\n${clases.length?clases.map(c=>`- ${c.m}: ${c.i}–${c.f} en ${c.s}`).join('\n'):'Sin clases'}\n\nGYM ESE DÍA: ${isGym?'Sí':'No'}\n\nPENDIENTES:\n${pendStr}\n\nCALENDARIOS: "Facultad" | "Emprendimiento" | "Yeshivá" | "Salud y cuerpo" | "Rutinas fijas" | "Tiempo libre"\n\nREGLAS:\n1. Sabés las clases — decíselas vos, no preguntes.\n2. Yeshivá 18-20:30 y Rutina mañana 06:15-07:15 SIEMPRE en el JSON.\n3. Para bloques libres, sugerí vos primero basándote en pendientes.\n4. Nombres ESPECÍFICOS siempre. NUNCA genérico.\n5. Cuando tengas 3+ bloques: "Listo, te armé el día — revisá y editá."\n6. Al final sin markdown: EVENTOS_JSON:[{"titulo":"...","calendario":"...","fecha":"${iso}","horaInicio":"HH:MM","horaFin":"HH:MM"}]`;
+}
+function getAhoraSystem(){
+  const pending=pendingTasks.filter(p=>!p.done);
+  const pendStr=pending.length?pending.map(p=>`[${p.cat}] ${p.text}`).join('\n'):'(sin pendientes)';
+  return `Sos el planificador de Iosef en modo ¿qué hago ahora?. Español rioplatense, directo.\n\nPENDIENTES:\n${pendStr}\n\nREGLAS:\n1. Sugerí UNA cosa concreta y accionable.\n2. Razoná brevemente por qué es la mejor opción ahora.\n3. Sé conversacional, no hagas formularios.`;
+}
+async function callAI(mode,userText){
+  const history=mode==='plan'?planHistory:ahoraHistory;
+  const system=mode==='plan'?getPlanSystem(targetDate):getAhoraSystem();
+  const sendBtn=document.getElementById('send-'+mode);
+  history.push({role:'user',content:userText});
+  if(mode==='plan')planLoading=true;else ahoraLoading=true;
+  sendBtn.disabled=true;showTypingIn(mode);
+  try{
+    const geminiMessages = history.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}));
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system_instruction:{parts:[{text:system}]},contents:geminiMessages,generationConfig:{maxOutputTokens:1000}})});
+    const data=await res.json();
+    const reply=data.candidates[0].content.parts[0].text;
+    history.push({role:'assistant',content:reply});
+    removeTypingFrom(mode);addMsgToChat(mode,'ai',reply);
+  }catch(e){removeTypingFrom(mode);addMsgToChat(mode,'ai','Error de conexión. Intentá de nuevo.');}
+  if(mode==='plan')planLoading=false;else ahoraLoading=false;
+  sendBtn.disabled=false;document.getElementById('input-'+mode).focus();
+}
+async function sendMsg(mode){const inputEl=document.getElementById('input-'+mode);const t=inputEl.value.trim();if(!t)return;const isLoading=mode==='plan'?planLoading:ahoraLoading;if(isLoading)return;inputEl.value='';inputEl.style.height='';addMsgToChat(mode,'user',t);await callAI(mode,t);}
+async function consultarAhora(){const time=document.getElementById('ahora-time').value||new Date().toTimeString().slice(0,5);const dur=document.getElementById('ahora-dur').value;const userMsg=`Son las ${time} y tengo ${dur} minutos libres. ¿Qué me recomendás hacer?`;addMsgToChat('ahora','user',userMsg);await callAI('ahora',userMsg);}
+function renderPreview(){
+  const sorted=[...events].sort((a,b)=>a.horaInicio.localeCompare(b.horaInicio));
+  document.getElementById('preview-list').innerHTML='';
+  sorted.forEach(ev=>{const ri=events.indexOf(ev);const color=CAL_COLORS[ev.calendario]||'#888780';const row=document.createElement('div');row.className='ev-row';row.innerHTML=`<div class="ev-dot" style="background:${color}"></div><div class="ev-info"><div class="ev-title">${ev.titulo}</div><div class="ev-sub">${ev.horaInicio}–${ev.horaFin} · ${ev.calendario}</div></div><div class="ev-acts"><div class="ev-btn" onclick="openEdit(${ri})"><i class="ti ti-pencil"></i></div><div class="ev-btn" onclick="deleteEv(${ri})"><i class="ti ti-trash"></i></div></div>`;document.getElementById('preview-list').appendChild(row);});
+  document.getElementById('ev-count').textContent=`(${events.length})`;
+}
+function togglePreview(s){document.getElementById('preview-panel').classList.toggle('open',s);}
+function openEdit(i){editingIdx=i;const ev=events[i];document.getElementById('edit-title').value=ev.titulo;document.getElementById('edit-start').value=ev.horaInicio;document.getElementById('edit-end').value=ev.horaFin;document.getElementById('edit-modal').classList.add('open');}
+function closeEdit(){document.getElementById('edit-modal').classList.remove('open');editingIdx=null;}
+function saveEdit(){if(editingIdx===null)return;events[editingIdx].titulo=document.getElementById('edit-title').value;events[editingIdx].horaInicio=document.getElementById('edit-start').value;events[editingIdx].horaFin=document.getElementById('edit-end').value;renderPreview();closeEdit();}
+function deleteEv(i){events.splice(i,1);renderPreview();}
+function exportICS(){if(!events.length)return;let ics='BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Planificador Iosef//ES\nCALSCALE:GREGORIAN\n';events.forEach(ev=>{const s=ev.fecha.replace(/-/g,'')+'T'+ev.horaInicio.replace(':','')+'00';const e=ev.fecha.replace(/-/g,'')+'T'+ev.horaFin.replace(':','')+'00';ics+=`BEGIN:VEVENT\nUID:${Date.now()}${Math.random().toString(36).slice(2)}@iosef\nDTSTART:${s}\nDTEND:${e}\nSUMMARY:${ev.titulo}\nCATEGORIES:${ev.calendario}\nEND:VEVENT\n`;});ics+='END:VCALENDAR';const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`iosef-${targetDate}.ics`;a.click();}
+function setMode(mode){document.querySelectorAll('.mode-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('panel-'+mode).classList.add('active');document.getElementById('tab-'+mode).classList.add('active');if(mode==='pend')renderPending();if(mode==='ahora'){const now=new Date();document.getElementById('ahora-time').value=now.toTimeString().slice(0,5);}}
+function handleKey(e,mode){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg(mode);}}
+function autoResize(el){el.style.height='';el.style.height=Math.min(el.scrollHeight,90)+'px';}
+function initPlan(){
+  document.getElementById('chat-plan').innerHTML='';planHistory=[];events=[];togglePreview(false);
+  targetDate=document.getElementById('target-date').value||todayISO;
+  renderCtxBar(targetDate);
+  const dn=getTargetDayName(targetDate);const clases=FACU[dn]||[];const isGym=GYM.includes(dn);const isToday=targetDate===todayISO;
+  const pending=pendingTasks.filter(p=>!p.done);
+  let g=`${isToday?'¡Buen día!':'¡Buenas!'} Planificando el ${formatDateLabel(targetDate)}.\n\n`;
+  if(clases.length){g+=`Tenés facu: ${clases.map(c=>`${c.m} de ${c.i} a ${c.f} en ${c.s}`).join(', ')}. Yeshivá a las 18hs como siempre.\n\n`;}
+  else{g+=`No tenés clases ese día. Yeshivá 18–20:30 como siempre.\n\n`;}
+  if(isGym)g+=`Es día de gym. ¿Lo ponemos?\n\n`;
+  if(pending.length){const urgente=pending.find(p=>p.days>=3);if(urgente)g+=`⚠️ Tenés "${urgente.text}" hace ${urgente.days} días sin tocar. `;g+=`Del emprendimiento hay ${pending.length} pendiente${pending.length>1?'s':''}. ¿Metemos algo hoy?`;}
+  addMsgToChat('plan','ai',g.trim());planHistory.push({role:'assistant',content:g.trim()});
+  document.getElementById('input-plan').focus();
+}
+function restartPlan(){targetDate=document.getElementById('target-date').value||todayISO;const s=formatDateLabel(targetDate);document.getElementById('date-label').textContent=s.charAt(0).toUpperCase()+s.slice(1);initPlan();}
+pendingTasks=loadPending();
+renderCtxBar(todayISO);
+initPlan();
+</script>
+</body>
+</html>
