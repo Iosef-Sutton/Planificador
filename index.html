@@ -217,7 +217,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
   </div>
 </div>
 <script>
-const API_URL = "https://project-m322c.vercel.app/api/chat";  
+const API_URL = "https://project-m322c.vercel.app/api/chat";
 const today = new Date();
 const todayISO = today.toISOString().split('T')[0];
 const dayNames = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
@@ -298,10 +298,10 @@ async function callAI(mode,userText){
   if(mode==='plan')planLoading=true;else ahoraLoading=true;
   sendBtn.disabled=true;showTypingIn(mode);
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1000,system,messages:history})});
+    const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system,messages:history})});
     const data=await res.json();
-    if(data.error){throw new Error(data.error.message);}
-    const reply=data.content[0].text;
+    if(data.error){throw new Error(data.error);}
+    const reply=data.reply;
     history.push({role:'assistant',content:reply});
     removeTypingFrom(mode);addMsgToChat(mode,'ai',reply);
   }catch(e){removeTypingFrom(mode);addMsgToChat(mode,'ai','Error de conexión. Intentá de nuevo.');}
