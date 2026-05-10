@@ -1,0 +1,22 @@
+{
+  "name": "Planificador",
+  "short_name": "Planificador",
+  "description": "Tu planificador diario personal",
+  "start_url": "/Planificador/",
+  "display": "standalone",
+  "background_color": "#1a1a1a",
+  "theme_color": "#c9a84c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

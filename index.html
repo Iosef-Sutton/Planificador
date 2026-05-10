@@ -6,6 +6,12 @@
 <title>Planificador — Iosef</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#c9a84c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Planificador">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
 :root {
   --bg:#0F0F0D;--bg2:#161613;--bg3:#1E1E1A;--bg4:#252520;
@@ -343,6 +349,11 @@ function restartPlan(){targetDate=document.getElementById('target-date').value||
 pendingTasks=loadPending();
 renderCtxBar(todayISO);
 initPlan();
+</script>
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/Planificador/sw.js');
+}
 </script>
 </body>
 </html>
